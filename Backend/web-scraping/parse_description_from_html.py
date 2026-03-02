@@ -1,48 +1,33 @@
+import json
+import html
 from bs4 import BeautifulSoup
-import re
+from fetch_html import fetch_html
 
 def parse_description_from_html(html):
     soup = BeautifulSoup(html, "html.parser")
-    text = soup.get_text("\n", strip=True)
+    scripts = soup.find_all("script", attrs={"type": "application/ld+json"})
 
-    lines = text.split("\n")
-    cleaned_lines = []
-    for ln in lines:
-        stripped_line = ln.strip()
-        if stripped_line:  
-            cleaned_lines.append(stripped_line)
-    lines = cleaned_lines
+    for s in scripts:
+        raw = s.string or s.get_text(strip=True)
+        if not raw:
+            continue
 
-    start_idx = None
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
 
-    start_idx = None
-    i = 0
-    while i < len(lines):
-        lower_line = lines[i].lower()
-        if lower_line == "about this home" or "about this home" in lower_line:
-            start_idx = i + 1 
-            break
-        i += 1
 
-    if start_idx is None:
-        return ""
+        if isinstance(data, dict):
+            desc = data.get("description")
+            if isinstance(desc, str) and desc.strip():
+                return html.unescape(desc).strip()
 
-    end_idx = len(lines)
+        elif isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict):
+                    desc = item.get("description")
+                    if isinstance(desc, str) and desc.strip():
+                        return html.unescape(desc).strip()
 
-    for j in range(start_idx, len(lines)):
-        lower_line = lines[j].lower()
-        if lower_line in {
-            "show more",
-            "see this home in person",
-            "property details",
-            "around this home",
-            "sale and tax history",
-        } or lower_line.startswith("summary of"):
-            end_idx = j
-            break
-
-    description = " ".join(lines[start_idx:end_idx])
-    
-    description = re.sub(r"\s+", " ", description).strip()
-    description = description.replace(" * ", " ").replace("*", "").strip()
-    return description
+    return None
