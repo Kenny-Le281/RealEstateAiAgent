@@ -2,59 +2,59 @@ import json
 from bs4 import BeautifulSoup
 from fetch_html import fetch_html
 
-def parse_image_urls_from_html(html):
-    soup = BeautifulSoup(html, "html.parser")
+def parse_image_urls_from_html(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
     scripts = soup.find_all("script", attrs={"type": "application/ld+json"})
 
     urls = []
     seen = set()
 
-    for s in scripts:
-        raw = s.string or s.get_text(strip=True)
-        if not raw:
-            continue
+    def add_url(url):
+        if isinstance(url, str) and url.startswith("http") and url not in seen:
+            seen.add(url)
+            urls.append(url)
 
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError:
-            continue
+    def collect_from_image_field(image_data):
+        if isinstance(image_data, str):
+            add_url(image_data)
 
-        dicts = walk(data)
-        for obj in dicts:
-            if "image" in obj:
-                collect_from_image_field(obj["image"])
-    print(len(urls))
+        elif isinstance(image_data, dict):
+            add_url(image_data.get("url"))
 
-    def add_url(u):
-        if isinstance(u, str) and u.startswith("http") and u not in seen:
-            seen.add(u)
-            urls.append(u)
-
-    def collect_from_image_field(img):
-        if isinstance(img, str):
-            add_url(img)
-
-        elif isinstance(img, dict):
-            add_url(img.get("url"))
-
-        elif isinstance(img, list):
-            for item in img:
+        elif isinstance(image_data, list):
+            for item in image_data:
                 if isinstance(item, str):
                     add_url(item)
                 elif isinstance(item, dict):
                     add_url(item.get("url"))
 
+    for script in scripts:
+        script_content = script.string or script.get_text(strip=True)
+        if not script_content:
+            continue
+
+        try:
+            data = json.loads(script_content)
+        except json.JSONDecodeError:
+            continue
+
+        data_objects = walk(data)
+        for data_obj in data_objects:
+            if "image" in data_obj:
+                collect_from_image_field(data_obj["image"])
+    
+    print(len(urls))
     return urls
 
 def walk(node):
-    results = []
+    collected_nodes = []
     if isinstance(node, dict):
-        results.append(node)
-        for v in node.values():
-            results.extend(walk(v))
+        collected_nodes.append(node)
+        for value in node.values():
+            collected_nodes.extend(walk(value))
 
     elif isinstance(node, list):
         for item in node:
-            results.extend(walk(item))
+            collected_nodes.extend(walk(item))
 
-    return results
+    return collected_nodes

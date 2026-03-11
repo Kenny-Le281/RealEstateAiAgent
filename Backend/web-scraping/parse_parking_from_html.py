@@ -6,41 +6,41 @@ import re
 
 
 
-def parse_parking_from_html(html):
+def parse_parking_from_html(html_content):
 
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(html_content, "html.parser")
 
-    for s in soup.find_all("script", attrs={"type": "application/ld+json"}):
-        raw = s.string or s.get_text(strip=True)
-        if not raw:
+    for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        script_content = script.string or script.get_text(strip=True)
+        if not script_content:
             continue
         try:
-            data = json.loads(raw)
+            data = json.loads(script_content)
         except json.JSONDecodeError:
             continue
 
 
         if isinstance(data, list):
-            objs = data
+            data_objects = data
         else:
-            objs = [data]
+            data_objects = [data]
              
-        for obj in objs:
-            if not isinstance(obj, dict):
+        for data_obj in data_objects:
+            if not isinstance(data_obj, dict):
                 continue
 
-            main = obj.get("mainEntity")
-            if not isinstance(main, dict):
+            main_entity = data_obj.get("mainEntity")
+            if not isinstance(main_entity, dict):
                 continue
 
-            features = main.get("amenityFeature")
-            if not isinstance(feature, list):
+            amenity_features = main_entity.get("amenityFeature")
+            if not isinstance(amenity_features, list):
                 continue
 
-            for feature in features:
-                if not isinstance(feature, dict):
+            for amenity_feature in amenity_features:
+                if not isinstance(amenity_feature, dict):
                     continue
-                name = feature.get("name")
+                name = amenity_feature.get("name")
                 if not (isinstance(name, str) and name.strip()):
                     continue
 
@@ -49,15 +49,15 @@ def parse_parking_from_html(html):
                     continue
 
                 # Extract spaces (digits) if present
-                m = re.search(r"\b(\d+)\b", name_clean)
-                if m:
-                    spaces = int(m.group(1)) 
+                match = re.search(r"\b(\d+)\b", name_clean)
+                if match:
+                    parking_spaces = int(match.group(1)) 
                 else:
-                    spaces = None
+                    parking_spaces = None
 
                 return {
                     "has_parking": True,
-                    "spaces": spaces,
+                    "spaces": parking_spaces,
                     "label": name_clean,
                 }
 
