@@ -2,8 +2,11 @@ import json
 from pathlib import Path
 
 # --- configuration --------------------------------------------------------
-API_INPUT_PATH = Path("Ottawa/Ottawa.json")   # your raw API dump
-OUTPUT_PATH = Path("Ottawa/ottawa_selected.json")
+# Base dir is two levels up from this file (project root)
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+API_INPUT_PATH = BASE_DIR / "Ottawa" / "Ottawa.json"   # your raw API dump
+OUTPUT_PATH = BASE_DIR / "Ottawa" / "ottawa_selected.json"
 
 # list of (parent‑path, field‑name) tuples to keep.
 # the parent path can be a dot‑separated string for nested values.

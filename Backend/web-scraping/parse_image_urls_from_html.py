@@ -43,7 +43,6 @@ def parse_image_urls_from_html(html_content):
             if "image" in data_obj:
                 collect_from_image_field(data_obj["image"])
     
-    print(len(urls))
     return urls
 
 def walk(node):

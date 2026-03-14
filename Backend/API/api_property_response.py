@@ -1,5 +1,6 @@
 import http.client
 import json
+import os
 
 conn = http.client.HTTPSConnection("redfin-canada.p.rapidapi.com")
 
@@ -23,8 +24,13 @@ parsed = json.loads(data.decode("utf-8"))
 # Pretty print to terminal
 print(json.dumps(parsed, indent=4))
 
+# Ensure output directory exists (placed in the repo root)
+output_dir = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "Ottawa"))
+os.makedirs(output_dir, exist_ok=True)
+
 # Save to file
-with open("Ottawa.json", "w") as f:
+output_path = os.path.join(output_dir, "Ottawa.json")
+with open(output_path, "w") as f:
     json.dump(parsed, f, indent=4)
 
-print("Saved to Ottawa.json")
+print(f"Saved to {output_path}")
