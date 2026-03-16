@@ -8,3 +8,6 @@ __pycache__/
 node_modules/
 venv/
 .env
+
+# Json files
+*.json

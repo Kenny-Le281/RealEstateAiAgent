@@ -46,4 +46,4 @@ def get_region_ids(city_name):
 
 
 # Try it
-get_region_ids("Toronto")
+get_region_ids("Ottawa")

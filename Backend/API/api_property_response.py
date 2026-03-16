@@ -11,7 +11,7 @@ headers = {
 
 conn.request(
     "GET",
-    "/properties/search-sale?regionId=33_2187",
+    "/properties/search-sale?regionId=33_2187", # Ottawa region ID from Redfin
     headers=headers
 )
 

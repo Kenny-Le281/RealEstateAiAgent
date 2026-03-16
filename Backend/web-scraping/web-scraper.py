@@ -11,6 +11,7 @@ from parse_parking_from_html import parse_parking_from_html
 from parse_property_type_from_html import parse_property_type_from_html
 from parse_property_details_from_html import parse_property_details_from_html
 from parse_sqft_from_html import parse_sqft_from_html
+# Missing Realtor info parsing for now, will add later when we have a better idea of the structure of the HTML and the data we want to extract from it.
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
