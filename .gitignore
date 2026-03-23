@@ -11,3 +11,6 @@ venv/
 
 # Json files
 *.json
+
+# env
+.env
