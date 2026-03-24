@@ -77,7 +77,10 @@ def build_api_params_tool(filters: HousingFilters) -> dict:
         "keyword": None,
     }
 
-    mapped_types = [type_map[t] for t in filters.property_types if t in type_map]
+    mapped_types = []
+    for t in filters.property_types:
+        if t in type_map:
+            mapped_types.append(type_map[t])
     if mapped_types:
         api_params["homeType"] = ",".join(mapped_types)
 
