@@ -7,10 +7,11 @@ __pycache__/
 # Python distribution / packages
 node_modules/
 venv/
-.env
 
 # Json files
 *.json
 
 # env
 .env
+
+.venv
