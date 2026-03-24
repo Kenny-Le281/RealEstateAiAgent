@@ -3,31 +3,31 @@ import html
 from bs4 import BeautifulSoup
 from fetch_html import fetch_html
 
-def parse_description_from_html(html):
-    soup = BeautifulSoup(html, "html.parser")
+def parse_description_from_html(html_content):
+    soup = BeautifulSoup(html_content, "html.parser")
     scripts = soup.find_all("script", attrs={"type": "application/ld+json"})
 
-    for s in scripts:
-        raw = s.string or s.get_text(strip=True)
-        if not raw:
+    for script in scripts:
+        script_content = script.string or script.get_text(strip=True)
+        if not script_content:
             continue
 
         try:
-            data = json.loads(raw)
+            data = json.loads(script_content)
         except json.JSONDecodeError:
             continue
 
 
         if isinstance(data, dict):
-            desc = data.get("description")
-            if isinstance(desc, str) and desc.strip():
-                return html.unescape(desc).strip()
+            description = data.get("description")
+            if isinstance(description, str) and description.strip():
+                return html.unescape(description).strip()
 
         elif isinstance(data, list):
             for item in data:
                 if isinstance(item, dict):
-                    desc = item.get("description")
-                    if isinstance(desc, str) and desc.strip():
-                        return html.unescape(desc).strip()
+                    description = item.get("description")
+                    if isinstance(description, str) and description.strip():
+                        return html.unescape(description).strip()
 
     return None

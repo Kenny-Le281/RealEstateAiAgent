@@ -9,6 +9,6 @@ def fetch_html(url):
         ),
         "Accept-Language": "en-CA,en;q=0.9",
     }
-    r = requests.get(url, headers=headers, timeout=30)
-    r.raise_for_status()
-    return r.text
+    response = requests.get(url, headers=headers, timeout=30)
+    response.raise_for_status()
+    return response.text
